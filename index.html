@@ -679,6 +679,22 @@ tick(); setInterval(tick, 1000);
 /* ---------- RSVP ---------- */
 const form = document.getElementById("form"), err = document.getElementById("err");
 let scelta = null, persone = 1;
+const KEY = "rsvp-laurea-sonia";
+let rsvpId = null;
+const nuovoId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+function mostraGrazie(nome, ritorno){
+  const first = nome.split(" ")[0];
+  document.getElementById("th-title").textContent = ritorno ? `Ciao, ${first}!` : (scelta === "si" ? `Grazie, ${first}!` : `Grazie, ${first}`);
+  document.getElementById("th-text").textContent = ritorno
+    ? (scelta === "si"
+        ? `Hai già confermato che ci sarai${persone > 1 ? " (" + persone + " persone)" : ""}. Non vedo l'ora di festeggiare con te! ♡`
+        : "Mi avevi già detto che non potrai esserci. Se cambi idea, puoi modificare la risposta ♡")
+    : (scelta === "si"
+        ? `La tua risposta è arrivata: non vedo l'ora di festeggiare con te${persone > 1 ? " e chi viene con te" : ""}! ♡`
+        : "Mi dispiace che tu non possa esserci, grazie per avermelo fatto sapere. Ti penserò quel giorno ♡");
+  form.style.display = "none";
+  document.getElementById("thanks").classList.add("show");
+}
 document.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => {
   scelta = b.dataset.v;
   document.querySelectorAll(".choice").forEach(x => x.classList.toggle("on", x === b));
@@ -694,7 +710,8 @@ form.addEventListener("submit", async e => {
   const nome = document.getElementById("nome").value.trim();
   if (!nome) { err.textContent = "Scrivi il tuo nome, così so chi sei ♡"; return; }
   if (!scelta) { err.textContent = "Dimmi se ci sarai"; return; }
-  const dati = { nome, partecipa: scelta, persone: scelta === "si" ? persone : 0, messaggio: document.getElementById("msg").value.trim(), website: document.getElementById("website").value };
+  if (!rsvpId) rsvpId = nuovoId();
+  const dati = { id: rsvpId, nome, partecipa: scelta, persone: scelta === "si" ? persone : 0, messaggio: document.getElementById("msg").value.trim(), website: document.getElementById("website").value };
   const btn = document.getElementById("send"); btn.disabled = true; btn.firstElementChild.textContent = "Invio in corso…";
   try {
     if (CONFIG.endpoint) {
@@ -702,13 +719,8 @@ form.addEventListener("submit", async e => {
     } else {
       await new Promise(r => setTimeout(r, 800)); // anteprima: nessun salvataggio
     }
-    const first = nome.split(" ")[0];
-    document.getElementById("th-title").textContent = scelta === "si" ? `Grazie, ${first}!` : `Grazie, ${first}`;
-    document.getElementById("th-text").textContent = scelta === "si"
-      ? `La tua risposta è arrivata: non vedo l'ora di festeggiare con te${persone > 1 ? " e chi viene con te" : ""}! ♡`
-      : "Mi dispiace che tu non possa esserci, grazie per avermelo fatto sapere. Ti penserò quel giorno ♡";
-    form.style.display = "none";
-    document.getElementById("thanks").classList.add("show");
+    try { localStorage.setItem(KEY, JSON.stringify(dati)); } catch(x){}
+    mostraGrazie(nome, false);
     if (scelta === "si") confetti();
   } catch (x) {
     err.textContent = "Qualcosa non ha funzionato, riprova tra poco.";
@@ -717,6 +729,21 @@ form.addEventListener("submit", async e => {
   }
 });
 document.getElementById("again").onclick = () => { document.getElementById("thanks").classList.remove("show"); form.style.display = ""; };
+
+/* risposta già data da questo telefono: ripristina */
+(function ripristina(){
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(KEY) || "null"); } catch(x){}
+  if (!d || !d.id || !d.nome) return;
+  rsvpId = d.id;
+  document.getElementById("nome").value = d.nome;
+  document.getElementById("msg").value = d.messaggio || "";
+  scelta = d.partecipa === "si" ? "si" : "no";
+  persone = Math.max(1, Number(d.persone) || 1); out.textContent = persone;
+  document.querySelectorAll(".choice").forEach(x => x.classList.toggle("on", x.dataset.v === scelta));
+  document.getElementById("howmany").classList.toggle("open", scelta === "si");
+  mostraGrazie(d.nome, true);
+})();
 </script>
 </body>
 </html>

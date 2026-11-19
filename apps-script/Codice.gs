@@ -2,6 +2,8 @@
  * RSVP – Laurea di Sonia
  * Riceve le risposte dalla pagina dell'invito e le salva in questo foglio Google.
  * Crea da solo la scheda "Risposte" e la scheda "Riepilogo" alla prima risposta.
+ * Se una persona modifica la sua risposta, la riga esistente viene aggiornata
+ * (riconosciuta dal codice nella colonna F "ID").
  */
 
 const SCHEDA = 'Risposte';
@@ -20,9 +22,25 @@ function doPost(e) {
     const persone = si ? Math.max(1, Math.min(15, Number(p.persone) || 1)) : 0;
     const messaggio = String(p.messaggio || '').trim().slice(0, 1000);
 
+    const id = String(p.id || '').trim().slice(0, 60);
+    const riga = [new Date(), nome, si ? 'Sì' : 'No', persone, messaggio, id];
+
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sh = schedaRisposte_(ss);
-    sh.appendRow([new Date(), nome, si ? 'Sì' : 'No', persone, messaggio]);
+
+    let aggiornata = false;
+    const ultima = sh.getLastRow();
+    if (id && ultima > 1) {
+      const ids = sh.getRange(2, 6, ultima - 1, 1).getValues();
+      for (let i = ids.length - 1; i >= 0; i--) {
+        if (String(ids[i][0]) === id) {
+          sh.getRange(i + 2, 1, 1, riga.length).setValues([riga]);
+          aggiornata = true;
+          break;
+        }
+      }
+    }
+    if (!aggiornata) sh.appendRow(riga);
     schedaRiepilogo_(ss);
 
     return risposta_('ok');
@@ -47,6 +65,10 @@ function schedaRisposte_(ss) {
     sh.setColumnWidth(1, 140);
     sh.setColumnWidth(2, 200);
     sh.setColumnWidth(5, 380);
+  }
+  if (sh.getRange(1, 6).getValue() !== 'ID') {
+    sh.getRange(1, 6).setValue('ID').setFontWeight('bold').setBackground('#F4E4E1');
+    sh.getRange('F:F').setFontColor('#999999');
   }
   return sh;
 }
