@@ -97,8 +97,8 @@ function paginaRisposte_(righe, ora, url) {
       <div class="top">
         <span class="nome">${esc_(r.nome)}</span>
         ${r.si
-          ? `<span class="badge si">✓ ${r.persone} ${r.persone === 1 ? 'persona' : 'persone'}</span>`
-          : `<span class="badge no">✗ non ci sarà</span>`}
+          ? `<span class="badge si">✓ Sì · ${r.persone} ${r.persone === 1 ? 'persona' : 'persone'}</span>`
+          : `<span class="badge no">✗ No</span>`}
       </div>
       ${r.data ? `<div class="data">${esc_(r.data)}</div>` : ''}
       ${r.messaggio ? `<p class="msg">“${esc_(r.messaggio)}”</p>` : ''}
@@ -117,11 +117,14 @@ body{font-family:'Cormorant Garamond',Georgia,serif;color:#16110F;background:#F4
 .head{text-align:center;margin-bottom:18px}
 .k{font-family:Montserrat,sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8F6B27}
 h1{font-family:'Pinyon Script',cursive;font-weight:400;font-size:46px;line-height:1.1;margin-top:4px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
-.st{background:#16110F;color:#fff;border-radius:6px;padding:14px 10px 12px;text-align:center;box-shadow:inset 0 0 0 1px rgba(198,160,82,.7)}
-.st b{display:block;font-size:34px;font-weight:600;line-height:1}
-.st span{font-family:Montserrat,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#C6A052}
-.st.light{background:#FFFCF7;color:#16110F}
+.hero{background:#16110F;color:#fff;border-radius:8px;padding:20px 16px 18px;text-align:center;box-shadow:inset 0 0 0 1px rgba(198,160,82,.75),inset 0 0 0 5px #16110F,inset 0 0 0 6px rgba(198,160,82,.3)}
+.hero b{display:block;font-size:64px;font-weight:600;line-height:1;color:#E7CC88}
+.hero .l1{display:block;font-size:22px;margin-top:6px}
+.hero .l2{display:block;font-family:Montserrat,sans-serif;font-size:10px;letter-spacing:.06em;color:#bfb1a8;margin-top:6px}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.mn{background:#FFFCF7;border:1px solid rgba(198,160,82,.45);border-radius:6px;padding:10px 4px 9px;text-align:center}
+.mn b{display:block;font-size:26px;font-weight:600;line-height:1}
+.mn span{display:block;font-family:Montserrat,sans-serif;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#8F6B27;margin-top:5px;line-height:1.3}
 h2{font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:#741322;margin:26px 2px 10px;display:flex;align-items:center;gap:8px}
 h2 span{background:#741322;color:#fff;border-radius:20px;padding:2px 9px;font-size:10px;letter-spacing:.05em}
 .r{background:#FFFCF7;border:1px solid rgba(198,160,82,.45);border-radius:6px;padding:14px 16px;margin-bottom:10px;box-shadow:0 4px 12px rgba(110,40,50,.08)}
@@ -138,14 +141,18 @@ h2 span{background:#741322;color:#fff;border-radius:20px;padding:2px 9px;font-si
 .ora{font-family:Montserrat,sans-serif;font-size:10px;color:#8b7b77;margin-top:10px}
 </style></head><body><div class="wrap">
   <div class="head"><p class="k">Laurea di Sonia</p><h1>Le risposte</h1></div>
-  <div class="stats">
-    <div class="st"><b>${si.length}</b><span>Ci saranno</span></div>
-    <div class="st"><b>${persone}</b><span>Persone in arrivo</span></div>
-    <div class="st light"><b>${no.length}</b><span>Non ci saranno</span></div>
-    <div class="st light"><b>${righe.length}</b><span>Risposte totali</span></div>
+  <div class="hero">
+    <b>${persone}</b>
+    <span class="l1">${persone === 1 ? 'persona verrà' : 'persone verranno'} alla festa</span>
+    <span class="l2">${si.length ? `contando chi viene insieme, da ${si.length} ${si.length === 1 ? 'risposta' : 'risposte'} “sì”` : 'ancora nessuna conferma'}</span>
   </div>
-  ${sezione('Ci saranno', si, 'Ancora nessuna conferma.')}
-  ${sezione('Non ci saranno', no, 'Nessuno, per ora ♡')}
+  <div class="mini">
+    <div class="mn"><b>${righe.length}</b><span>Risposte<br>ricevute</span></div>
+    <div class="mn"><b>${si.length}</b><span>Hanno<br>detto sì</span></div>
+    <div class="mn"><b>${no.length}</b><span>Hanno<br>detto no</span></div>
+  </div>
+  ${sezione('Hanno detto sì', si, 'Ancora nessuna conferma.')}
+  ${sezione('Hanno detto no', no, 'Nessuno, per ora ♡')}
   <div class="foot">
     <a class="agg" href="${esc_(url)}" target="_top">↻ Aggiorna</a>
     <p class="ora">Aggiornato il ${esc_(ora)}</p>
@@ -177,9 +184,9 @@ function schedaRiepilogo_(ss) {
   const r = ss.insertSheet('Riepilogo');
   r.getRange('A1:A4').setValues([
     ['Risposte ricevute'],
-    ['Ci saranno (risposte Sì)'],
-    ['Persone in arrivo'],
-    ['Non ci saranno'],
+    ['Hanno detto sì'],
+    ['Persone che verranno (in tutto)'],
+    ['Hanno detto no'],
   ]);
   // foglio in italiano: separatore ';'
   r.getRange('B1:B4').setFormulas([
