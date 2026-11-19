@@ -60,11 +60,12 @@ function schedaRiepilogo_(ss) {
     ['Persone in arrivo'],
     ['Non ci saranno'],
   ]);
+  // foglio in italiano: separatore ';'
   r.getRange('B1:B4').setFormulas([
     ['=COUNTA(Risposte!B2:B)'],
-    ['=COUNTIF(Risposte!C2:C,"Sì")'],
-    ['=SUMIF(Risposte!C2:C,"Sì",Risposte!D2:D)'],
-    ['=COUNTIF(Risposte!C2:C,"No")'],
+    ['=COUNTIF(Risposte!C2:C;"Sì")'],
+    ['=SUMIF(Risposte!C2:C;"Sì";Risposte!D2:D)'],
+    ['=COUNTIF(Risposte!C2:C;"No")'],
   ]);
   r.getRange('A1:A4').setFontWeight('bold');
   r.setColumnWidth(1, 220);
