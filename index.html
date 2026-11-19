@@ -163,7 +163,8 @@ form{text-align:left;margin-top:24px}
 .err{font-family:var(--sans);font-size:11px;color:var(--red);margin-top:8px;min-height:14px;text-align:center}
 .thanks{display:none;padding-top:10px}
 .thanks.show{display:block;animation:fadeup .7s ease both}
-.thanks .big{font-family:var(--script);font-size:46px;margin:6px 0}
+.thanks .big{font-family:var(--script);font-size:46px;line-height:1.1;margin:6px 0}
+.thanks .big.lungo{font-size:clamp(30px,9vw,38px)}
 .thanks .again{margin-top:16px;font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8b7b77;border-bottom:1px solid #d9c3c0;padding-bottom:2px}
 
 /* finale */
@@ -694,8 +695,10 @@ const KEY = "rsvp-laurea-sonia";
 let rsvpId = null;
 const nuovoId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
 function mostraGrazie(nome, ritorno){
-  const first = nome.split(" ")[0];
-  document.getElementById("th-title").textContent = ritorno ? `Ciao, ${first}!` : (scelta === "si" ? `Grazie, ${first}!` : `Grazie, ${first}`);
+  const chi = nome.replace(/\s+/g, " ").trim();
+  const tt = document.getElementById("th-title");
+  tt.textContent = ritorno ? `Ciao, ${chi}!` : `Grazie, ${chi}!`;
+  tt.classList.toggle("lungo", chi.length > 16);
   document.getElementById("th-text").textContent = ritorno
     ? (scelta === "si"
         ? `Hai già confermato che ci sarai${persone > 1 ? " (" + persone + " persone)" : ""}. Non vedo l'ora di festeggiare con te! ♡`
