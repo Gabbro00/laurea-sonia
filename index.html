@@ -88,9 +88,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tag::before{content:"";position:absolute;left:5px;top:50%;width:4px;height:4px;border-radius:50%;background:var(--gold);transform:translateY(-50%)}
 
 .pill{font-family:var(--sans);font-size:12px;letter-spacing:.06em;color:var(--red-d);background:rgba(255,252,247,.92);border:1px solid rgba(198,160,82,.6);border-radius:40px;padding:12px 24px;box-shadow:0 6px 16px rgba(120,40,50,.12);transition:opacity .4s,transform .4s}
-.next-cue{margin-top:24px;animation:cuein .6s ease both,bounce 1.8s .6s ease-in-out infinite}
-.next-cue[hidden]{display:none}
-@keyframes cuein{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.btn-gold.go{animation:cuein .5s ease both,bounce 1.8s .5s ease-in-out infinite}
+@keyframes cuein{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.to-rsvp{margin-top:24px;margin-bottom:30px;animation:bounce 2.2s ease-in-out infinite}
 .pill.bounce{animation:bounce 1.8s ease-in-out infinite}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
@@ -332,7 +332,6 @@ footer span{color:var(--gold)}
         <button class="btn-gold" id="spin">✦ Scopri la data ✦</button>
         <p class="hint" id="hint">Tre numeri, un giorno indimenticabile.</p>
       </div>
-      <button class="pill next-cue" id="nextCue" hidden>✦ Scorri per i dettagli della festa ↓</button>
     </section>
 
     <!-- INVITO -->
@@ -362,6 +361,7 @@ footer span{color:var(--gold)}
         <div class="cd"><b id="cd-m">0</b><span>min</span></div>
         <div class="cd"><b id="cd-s">0</b><span>sec</span></div>
       </div>
+      <button class="btn-dark to-rsvp" id="toRsvp" type="button"><span>Conferma la tua presenza ↓</span></button>
     </section>
 
     <!-- RSVP -->
@@ -632,8 +632,9 @@ function observe(){
 /* ---------- svela la data (slot) ---------- */
 const sd = document.getElementById("sd"), sm = document.getElementById("sm"), sy = document.getElementById("sy");
 const spinBtn = document.getElementById("spin"), hint = document.getElementById("hint");
-let spun = false;
+let spun = false, revealed = false;
 spinBtn.addEventListener("click", () => {
+  if (revealed) { document.getElementById("dettagli").scrollIntoView({behavior:"smooth", block:"start"}); return; }
   if (spun) return; spun = true; spinBtn.disabled = true;
   spinBtn.textContent = "La fortuna sta girando…";
   const slots = [
@@ -649,7 +650,10 @@ spinBtn.addEventListener("click", () => {
     spinBtn.textContent = "✦ Data svelata ✦";
     hint.textContent = `Ti aspetto il ${D.giorno} ${MESI[D.mese-1]} ${D.anno}! ♡`;
     confetti();
-    setTimeout(() => { document.getElementById("nextCue").hidden = false; }, 700);
+    setTimeout(() => {
+      revealed = true; spinBtn.disabled = false;
+      spinBtn.textContent = "✦ Scopri i dettagli ↓"; spinBtn.classList.add("go");
+    }, 1400);
   }, 2150);
 });
 function confetti(){
@@ -667,7 +671,7 @@ function confetti(){
   }
 }
 
-document.getElementById("nextCue").addEventListener("click", () => document.getElementById("dettagli").scrollIntoView({behavior:"smooth", block:"start"}));
+document.getElementById("toRsvp").addEventListener("click", () => document.getElementById("rsvp").scrollIntoView({behavior:"smooth", block:"start"}));
 
 /* ---------- conto alla rovescia ---------- */
 function tick(){
